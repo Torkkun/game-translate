@@ -1,0 +1,65 @@
+# ツール (gtl) のリリース。v* のタグを push すると、CI を通してから
+# Windows / Linux / macOS 向けの gtl をビルドして GitHub Release に添付する。
+#   git tag v0.1.0 && git push origin v0.1.0
+# Mod や訳文はここでは扱わない (ゲームのファイルが要るので手元で作る。docs/RELEASE.md)。
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: ci
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - { goos: windows, goarch: amd64, ext: .exe }
+          - { goos: linux, goarch: amd64, ext: "" }
+          - { goos: darwin, goarch: arm64, ext: "" }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: |
+          name="gtl_${GITHUB_REF_NAME}_${GOOS}_${GOARCH}"
+          mkdir -p "out/$name"
+          go build -trimpath -ldflags "-s -w" -o "out/$name/gtl${{ matrix.ext }}" ./cmd/gtl
+          cp LICENSE README.md gtl.example.yaml "out/$name/"
+          (cd out && zip -qr "$name.zip" "$name")
+      - uses: actions/upload-artifact@v7
+        with:
+          name: gtl-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: out/*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: out
+          merge-multiple: true
+      - name: GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          (cd out && sha256sum ./*.zip > SHA256SUMS.txt)
+          gh release create "$GITHUB_REF_NAME" out/*.zip out/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes

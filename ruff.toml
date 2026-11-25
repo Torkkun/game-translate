@@ -1,0 +1,8 @@
+# Python の補助ツール (games/*/tools など) の lint / format 設定
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "W", "I"]
+# 短い作業用スクリプトなので、1 文字の変数名・途中の import・長い行は許す
+ignore = ["E501", "E741", "E402"]

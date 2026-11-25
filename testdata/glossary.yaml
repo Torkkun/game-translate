@@ -1,0 +1,29 @@
+# テスト用の用語集 (testdata/sample.jsonl の架空の物語用)
+terms:
+  - source: Sam Vale
+    target: サム・ヴェイル
+  - source: Vale
+    target: ヴェイル
+    case_sensitive: true
+  - source: Lorraine Pike
+    target: ロレイン・パイク
+  - source: Pike
+    target: パイク
+    case_sensitive: true
+  - source: Blue Lantern
+    target: ブルー・ランタン
+  - source: Gus
+    target: ガス
+  - source: Harlan Reyes
+    target: ハーラン・レイエス
+  - source: Reyes
+    target: レイエス
+    case_sensitive: true
+  - source: Lieutenant
+    target: 警部補
+  - source: Moretti
+    target: モレッティ
+  - source: Pier 9
+    target: 第9埠頭
+  - source: Eddie
+    target: エディ

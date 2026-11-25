@@ -1,0 +1,31 @@
+# CI の親ワークフロー。種類ごとの子ワークフロー (ci-*.yml) を呼ぶ。
+# リリース (release.yml) からも呼ばれ、ここが通らないとリリースしない。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  guard:
+    name: Guard
+    uses: ./.github/workflows/ci-guard.yml
+  go:
+    name: Go
+    uses: ./.github/workflows/ci-go.yml
+  shell:
+    name: Shell
+    uses: ./.github/workflows/ci-shell.yml
+  devcontainer:
+    name: Dev Container
+    uses: ./.github/workflows/ci-devcontainer.yml

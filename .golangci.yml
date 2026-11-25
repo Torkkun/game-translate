@@ -1,0 +1,37 @@
+version: "2"
+
+linters:
+  default: standard # errcheck, govet, ineffassign, staticcheck, unused
+  settings:
+    errcheck:
+      # 失敗しない・失敗しても困らない呼び出し
+      exclude-functions:
+        - encoding/binary.Write # bytes.Buffer への書き込み
+        - (*flag.FlagSet).Parse # ExitOnError で終了する
+        - (*os.File).Close # 読み取り用のファイル (書き込み用は戻り値を見る)
+        - (io.Closer).Close
+        - (io.ReadCloser).Close
+        - os.Remove # 一時ファイルの後片付け
+        - (*database/sql.DB).Close
+        - (*github.com/Torkkun/game-translate/internal/tm.TM).Close
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+    staticcheck:
+      checks:
+        - all
+        - -QF1001 # ド・モルガンの書き換えは読みやすさで選ぶ
+        - -ST1000 # パッケージのコメントの形式
+        - -ST1003 # 名前の付け方 (ID, URL など)
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters: [errcheck]
+      # mage のタスクは、一覧に出す説明をそのまま書く (名前で始めない)
+      - path: magefiles/
+        linters: [staticcheck]
+        text: "ST1020|ST1021|ST1022"
+
+formatters:
+  enable:
+    - gofmt

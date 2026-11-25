@@ -1,0 +1,100 @@
+{"id":"s01_001","source":"The rain hadn't let up in three days. Neither had my headache.","context":{"scene":"s01_office","speaker":"Sam Vale","note":"Narration. A private detective's office at night."}}
+{"id":"s01_002","source":"Then she walked in, and the headache got worse.","context":{"scene":"s01_office","speaker":"Sam Vale"}}
+{"id":"s01_003","source":"Are you Sam Vale, the private investigator?","context":{"scene":"s01_office","speaker":"Lorraine Pike"}}
+{"id":"s01_004","source":"Depends who's asking, and how much they're paying.","context":{"scene":"s01_office","speaker":"Sam Vale"}}
+{"id":"s01_005","source":"My name is Lorraine Pike. My brother Eddie is missing.","context":{"scene":"s01_office","speaker":"Lorraine Pike"}}
+{"id":"s01_006","source":"People go missing every day in this city. Most of them want to.","context":{"scene":"s01_office","speaker":"Sam Vale"}}
+{"id":"s01_007","source":"Not Eddie. He'd never leave without telling me.","context":{"scene":"s01_office","speaker":"Lorraine Pike"}}
+{"id":"s01_008","source":"When did you see him last?","context":{"scene":"s01_office","speaker":"Sam Vale"}}
+{"id":"s01_009","source":"Last Tuesday. He said he had a job down at the docks.","context":{"scene":"s01_office","speaker":"Lorraine Pike"}}
+{"id":"s01_010","source":"What kind of job?","context":{"scene":"s01_office","speaker":"Sam Vale"}}
+{"id":"s01_011","source":"He wouldn't say. Only that it would pay off all his debts.","context":{"scene":"s01_office","speaker":"Lorraine Pike"}}
+{"id":"s01_012","source":"Jobs like that usually pay off in other ways.","context":{"scene":"s01_office","speaker":"Sam Vale"}}
+{"id":"s01_013","source":"Please, Mr. Vale. The police won't even look for him.","context":{"scene":"s01_office","speaker":"Lorraine Pike"}}
+{"id":"s01_014","source":"Fifty a day, plus expenses.","context":{"scene":"s01_office","speaker":"Sam Vale"}}
+{"id":"s01_015","source":"Here's two hundred. Find him.","context":{"scene":"s01_office","speaker":"Lorraine Pike"}}
+{"id":"s01_016","source":"Who did your brother owe money to?","context":{"scene":"s01_office","speaker":"Sam Vale"}}
+{"id":"s01_017","source":"He mentioned a bar. The Blue Lantern, on Fifth Street.","context":{"scene":"s01_office","speaker":"Lorraine Pike"}}
+{"id":"s01_018","source":"I know the place. The beer is warm and the customers are cold.","context":{"scene":"s01_office","speaker":"Sam Vale"}}
+{"id":"s01_019","source":"Will you call me as soon as you hear anything?","context":{"scene":"s01_office","speaker":"Lorraine Pike"}}
+{"id":"s01_020","source":"She left a trace of perfume and a lot of questions.","context":{"scene":"s01_office","speaker":"Sam Vale","note":"Narration."}}
+{"id":"s02_001","source":"The Blue Lantern smelled like spilled whiskey and bad decisions.","context":{"scene":"s02_bar","speaker":"Sam Vale","note":"Narration. A run-down bar."}}
+{"id":"s02_002","source":"Well, look who it is. Haven't seen you in a while, Vale.","context":{"scene":"s02_bar","speaker":"Gus"}}
+{"id":"s02_003","source":"I've been busy staying sober, Gus.","context":{"scene":"s02_bar","speaker":"Sam Vale"}}
+{"id":"s02_004","source":"How's that going?","context":{"scene":"s02_bar","speaker":"Gus"}}
+{"id":"s02_005","source":"About as well as your business. Pour me a coffee.","context":{"scene":"s02_bar","speaker":"Sam Vale"}}
+{"id":"s02_006","source":"Coffee? In my bar? You must be working.","context":{"scene":"s02_bar","speaker":"Gus"}}
+{"id":"s02_007","source":"I'm looking for a guy named Eddie Pike.","context":{"scene":"s02_bar","speaker":"Sam Vale"}}
+{"id":"s02_008","source":"Never heard of him.","context":{"scene":"s02_bar","speaker":"Gus"}}
+{"id":"s02_009","source":"You answered that too fast, Gus.","context":{"scene":"s02_bar","speaker":"Sam Vale"}}
+{"id":"s02_010","source":"Look, I don't want any trouble.","context":{"scene":"s02_bar","speaker":"Gus"}}
+{"id":"s02_011","source":"Nobody wants trouble. It shows up anyway.","context":{"scene":"s02_bar","speaker":"Sam Vale"}}
+{"id":"s02_012","source":"Fine. He came in last week with Moretti's boys.","context":{"scene":"s02_bar","speaker":"Gus"}}
+{"id":"s02_013","source":"Moretti? The guy who runs the card games on the waterfront?","context":{"scene":"s02_bar","speaker":"Sam Vale"}}
+{"id":"s02_014","source":"Keep your voice down, will you?","context":{"scene":"s02_bar","speaker":"Gus"}}
+{"id":"s02_015","source":"What did they talk about?","context":{"scene":"s02_bar","speaker":"Sam Vale"}}
+{"id":"s02_016","source":"A shipment. Something coming in at Pier 9 on Friday night.","context":{"scene":"s02_bar","speaker":"Gus"}}
+{"id":"s02_017","source":"What kind of shipment?","context":{"scene":"s02_bar","speaker":"Sam Vale"}}
+{"id":"s02_018","source":"The kind you don't ask about if you want to keep your teeth.","context":{"scene":"s02_bar","speaker":"Gus"}}
+{"id":"s02_019","source":"Thanks for the coffee, Gus. Put it on my tab.","context":{"scene":"s02_bar","speaker":"Sam Vale"}}
+{"id":"s02_020","source":"You don't have a tab. You have a debt.","context":{"scene":"s02_bar","speaker":"Gus"}}
+{"id":"s03_001","source":"The precinct was as cheerful as a funeral, and twice as crowded.","context":{"scene":"s03_precinct","speaker":"Sam Vale","note":"Narration. A police station."}}
+{"id":"s03_002","source":"Vale. Who let you in here?","context":{"scene":"s03_precinct","speaker":"Harlan Reyes"}}
+{"id":"s03_003","source":"Good to see you too, Lieutenant.","context":{"scene":"s03_precinct","speaker":"Sam Vale"}}
+{"id":"s03_004","source":"I've got five minutes. Make them count.","context":{"scene":"s03_precinct","speaker":"Harlan Reyes"}}
+{"id":"s03_005","source":"Eddie Pike. Missing since Tuesday. Anything come across your desk?","context":{"scene":"s03_precinct","speaker":"Sam Vale"}}
+{"id":"s03_006","source":"A lot of things come across my desk. Most of them I throw away.","context":{"scene":"s03_precinct","speaker":"Harlan Reyes"}}
+{"id":"s03_007","source":"His sister says he was mixed up with Moretti.","context":{"scene":"s03_precinct","speaker":"Sam Vale"}}
+{"id":"s03_008","source":"Then his sister should start picking out flowers.","context":{"scene":"s03_precinct","speaker":"Harlan Reyes"}}
+{"id":"s03_009","source":"You know something, Reyes.","context":{"scene":"s03_precinct","speaker":"Sam Vale"}}
+{"id":"s03_010","source":"I know that Moretti has friends in City Hall. Powerful friends.","context":{"scene":"s03_precinct","speaker":"Harlan Reyes"}}
+{"id":"s03_011","source":"And you're afraid of them.","context":{"scene":"s03_precinct","speaker":"Sam Vale"}}
+{"id":"s03_012","source":"I'm afraid of losing my pension. There's a difference.","context":{"scene":"s03_precinct","speaker":"Harlan Reyes"}}
+{"id":"s03_013","source":"Something's coming in at Pier 9 on Friday.","context":{"scene":"s03_precinct","speaker":"Sam Vale"}}
+{"id":"s03_014","source":"Where did you hear that?","context":{"scene":"s03_precinct","speaker":"Harlan Reyes"}}
+{"id":"s03_015","source":"A bartender with a bad memory and a good conscience.","context":{"scene":"s03_precinct","speaker":"Sam Vale"}}
+{"id":"s03_016","source":"Stay away from the docks, Vale. That's not a request.","context":{"scene":"s03_precinct","speaker":"Harlan Reyes"}}
+{"id":"s03_017","source":"Since when do you care what happens to me?","context":{"scene":"s03_precinct","speaker":"Sam Vale"}}
+{"id":"s03_018","source":"I don't. I just hate paperwork, and you'd make a lot of it.","context":{"scene":"s03_precinct","speaker":"Harlan Reyes"}}
+{"id":"s03_019","source":"I'll try to die somewhere outside your district.","context":{"scene":"s03_precinct","speaker":"Sam Vale"}}
+{"id":"s03_020","source":"He didn't laugh. Cops never do when the joke is too close to the truth.","context":{"scene":"s03_precinct","speaker":"Sam Vale","note":"Narration."}}
+{"id":"s04_001","source":"Pier 9 at midnight. Fog so thick you could lean on it.","context":{"scene":"s04_docks","speaker":"Sam Vale","note":"Narration. The harbor at night."}}
+{"id":"s04_002","source":"Hey! Who's out there?","context":{"scene":"s04_docks","speaker":"Dock Guard"}}
+{"id":"s04_003","source":"Just a guy looking for his lost cat.","context":{"scene":"s04_docks","speaker":"Sam Vale"}}
+{"id":"s04_004","source":"At this hour? Get lost before I call Mr. Moretti.","context":{"scene":"s04_docks","speaker":"Dock Guard"}}
+{"id":"s04_005","source":"Go ahead. I've been wanting to meet him.","context":{"scene":"s04_docks","speaker":"Sam Vale"}}
+{"id":"s04_006","source":"You've got a big mouth for a man standing alone in the dark.","context":{"scene":"s04_docks","speaker":"Moretti"}}
+{"id":"s04_007","source":"I'm not alone. I brought my good looks.","context":{"scene":"s04_docks","speaker":"Sam Vale"}}
+{"id":"s04_008","source":"Search him.","context":{"scene":"s04_docks","speaker":"Moretti"}}
+{"id":"s04_009","source":"He's clean, boss. Just a wallet and a cheap lighter.","context":{"scene":"s04_docks","speaker":"Dock Guard"}}
+{"id":"s04_010","source":"Where's Eddie Pike, Moretti?","context":{"scene":"s04_docks","speaker":"Sam Vale"}}
+{"id":"s04_011","source":"Eddie? Eddie owes me money. Men who owe me money don't disappear.","context":{"scene":"s04_docks","speaker":"Moretti"}}
+{"id":"s04_012","source":"Then where is he?","context":{"scene":"s04_docks","speaker":"Sam Vale"}}
+{"id":"s04_013","source":"That's what I'd like to know. He ran off with my shipment.","context":{"scene":"s04_docks","speaker":"Moretti"}}
+{"id":"s04_014","source":"So we're both looking for him.","context":{"scene":"s04_docks","speaker":"Sam Vale"}}
+{"id":"s04_015","source":"The difference is, I'll find him first.","context":{"scene":"s04_docks","speaker":"Moretti"}}
+{"id":"s04_016","source":"Funny. His sister didn't hire you.","context":{"scene":"s04_docks","speaker":"Sam Vale"}}
+{"id":"s04_017","source":"His sister? Eddie doesn't have a sister.","context":{"scene":"s04_docks","speaker":"Moretti"}}
+{"id":"s04_018","source":"That's when I realized I'd been played from the start.","context":{"scene":"s04_docks","speaker":"Sam Vale","note":"Narration."}}
+{"id":"s04_019","source":"Let him go. He's going to lead us right to her.","context":{"scene":"s04_docks","speaker":"Moretti"}}
+{"id":"s04_020","source":"The fog swallowed me whole, and for once I was grateful.","context":{"scene":"s04_docks","speaker":"Sam Vale","note":"Narration."}}
+{"id":"ui_001","source":"New Game","context":{"kind":"ui","note":"Main menu button."},"constraints":{"max_len":12}}
+{"id":"ui_002","source":"Continue","context":{"kind":"ui","note":"Main menu button."},"constraints":{"max_len":12}}
+{"id":"ui_003","source":"Settings","context":{"kind":"ui","note":"Main menu button."},"constraints":{"max_len":12}}
+{"id":"ui_004","source":"Quit to Desktop","context":{"kind":"ui","note":"Main menu button."},"constraints":{"max_len":12}}
+{"id":"ui_005","source":"Chapter {0}: {1}","context":{"kind":"ui","note":"Chapter title. {0} is a number, {1} is the chapter name."}}
+{"id":"ui_006","source":"Clues found: {0}/{1}","context":{"kind":"ui","note":"Counter shown during investigation."}}
+{"id":"ui_007","source":"Press <b>E</b> to examine","context":{"kind":"ui","note":"Interaction prompt."}}
+{"id":"ui_008","source":"<color=#FFD700>New clue added to your notebook</color>","context":{"kind":"ui","note":"Notification."}}
+{"id":"ui_009","source":"Saving... Do not turn off your computer.","context":{"kind":"ui"}}
+{"id":"ui_010","source":"Are you sure you want to quit?\\nUnsaved progress will be lost.","context":{"kind":"ui","note":"Confirmation dialog. \\n is a line break."}}
+{"id":"ui_011","source":"Yes","context":{"kind":"ui","note":"Dialog button."},"constraints":{"max_len":6}}
+{"id":"ui_012","source":"No","context":{"kind":"ui","note":"Dialog button."},"constraints":{"max_len":6}}
+{"id":"ui_013","source":"Subtitles","context":{"kind":"ui","note":"Settings option."}}
+{"id":"ui_014","source":"Master Volume","context":{"kind":"ui","note":"Settings option."}}
+{"id":"ui_015","source":"Text Speed","context":{"kind":"ui","note":"Settings option."}}
+{"id":"ui_016","source":"Loading %d%%","context":{"kind":"ui","note":"Loading screen. %d is a number."}}
+{"id":"ui_017","source":"Deduction failed. Try connecting different clues.","context":{"kind":"ui"}}
+{"id":"ui_018","source":"Talk to Gus at the Blue Lantern","context":{"kind":"ui","note":"Current objective in the quest log."}}
+{"id":"ui_019","source":"Go to Pier 9","context":{"kind":"ui","note":"Current objective in the quest log."}}
+{"id":"ui_020","source":"Time remaining: {0} seconds","context":{"kind":"ui","note":"Timer during a timed dialogue choice."}}

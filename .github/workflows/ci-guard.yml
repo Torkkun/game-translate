@@ -1,0 +1,27 @@
+# 公開して問題ないかの確認。push ごとに毎回動かす。
+#   - ゲーム由来のファイル・訳文・大きなファイル・個人の環境のパスが入っていないか (mage check)
+#   - API キーなどの秘密情報が、履歴を含めて入っていないか (gitleaks)
+name: CI / Guard
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  public-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # 履歴もすべて調べる
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: ゲーム由来のファイル・個人の情報
+        run: go run mage.go check
+      - name: 秘密情報 (gitleaks)
+        run: |
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1 \
+            git /repo --no-banner --redact --exit-code 1

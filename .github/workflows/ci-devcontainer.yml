@@ -1,0 +1,20 @@
+# Dev Container のイメージが組み立てられ、普段使うツールが入っているか
+name: CI / Dev Container
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: build
+        run: docker build -t game-translate-dev .devcontainer
+      - name: tools
+        run: |
+          docker run --rm game-translate-dev sh -c \
+            'for t in go mage golangci-lint shellcheck actionlint gitleaks; do command -v "$t" >/dev/null || { echo "$t がありません"; exit 1; }; done'

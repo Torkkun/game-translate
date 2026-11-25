@@ -1,0 +1,40 @@
+{
+  "name": "game-translate",
+  // 普段の開発に使うツール (Go・mage・golangci-lint・shellcheck・actionlint・gitleaks) を入れたイメージ。
+  // gh と docker CLI は下の features で足す。ゲームの Mod の組み立て用 (.NET など) は入れない
+  "build": { "dockerfile": "Dockerfile" },
+
+  // ホストと同じパスにマウントする。DevContainer 内から docker を使ったとき (翻訳サーバーの compose、
+  // Mod の組み立てのコンテナ)、相対パスや -v のパスが WSL 側でも同じ場所を指すようにするため。
+  "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
+  "workspaceFolder": "${localWorkspaceFolder}",
+
+  // ゲームフォルダは読み取り専用。WSL では /mnt/<ドライブ> をそのまま同じパスで見せる
+  // (games/*/game.yaml の install_dir がそのまま使える)。書き込みは scripts/gtl.sh install から行う
+  "mounts": [
+    "source=/mnt,target=/mnt,type=bind,readonly"
+  ],
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": ["golang.go", "anthropic.claude-code"]
+    }
+  },
+
+  // 127.0.0.1:8000 の翻訳サーバー (compose の llm) に届くようにホストのネットワークを使う
+  "runArgs": ["--network=host"],
+
+  // Go のキャッシュはリポジトリ内 (.cache/, git 対象外) に置く
+  "containerEnv": {
+    "GOCACHE": "${containerWorkspaceFolder}/.cache/go-build",
+    "GOMODCACHE": "${containerWorkspaceFolder}/.cache/go-mod",
+    "GOLANGCI_LINT_CACHE": "${containerWorkspaceFolder}/.cache/golangci"
+  },
+
+  "remoteUser": "vscode"
+}

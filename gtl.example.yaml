@@ -1,0 +1,42 @@
+# gtl の全体設定の例。gtl.yaml にコピーして書き換える (gtl.yaml は git に入れない)。
+# ファイルが無いときは「英語 → 日本語、ローカルの PLaMo 翻訳モデル」で動く。
+# コマンドの -provider / -model / -llm / -source / -target はこの設定より優先する。
+
+source_lang: en
+target_lang: ja        # ja / ko / zh-Hans / zh-Hant など
+
+llm:
+  # plamo     : llama.cpp server 上の PLaMo 3 Translate (compose.yaml の llm)。GPU 推奨。ja / en / ko / zh などに対応
+  # openai    : OpenAI 互換の chat completions API (OpenAI, Ollama, LM Studio, 汎用モデルの llama.cpp など)
+  # anthropic : Claude API
+  provider: plamo
+  url: http://127.0.0.1:8000
+  model: plamo-3-translate
+  # API キーは設定ファイルに書かず、環境変数で渡す。ここにはその変数名を書く
+  # api_key_env: ANTHROPIC_API_KEY
+  # anthropic のときの思考の深さ (low / medium / high)
+  # effort: low
+  # 同時に送る依頼の数 (llama.cpp ではスロット数以下、API ではレート制限に合わせる)
+  # workers: 3
+
+# 例: Claude API で韓国語に訳す
+# target_lang: ko
+# llm:
+#   provider: anthropic
+#   model: claude-opus-5-5
+#   api_key_env: ANTHROPIC_API_KEY
+#   effort: low
+
+# 例: ローカルの Ollama
+# llm:
+#   provider: openai
+#   url: http://127.0.0.1:11434
+#   model: qwen3:14b
+
+fonts:
+  # ゲームに同梱するフォント (TTF/OTF)。フォントを差し替えるゲーム固有の拡張が使う
+  # file: fonts/MPLUS1p-Bold.ttf
+  # ドット絵風のゲーム (AGS など) 向けのフォント
+  # bitmap: fonts/PixelMplus12-Regular.ttf
+  # OS のフォントを使うプラグイン向け。省略時は訳文の言語に合わせた Windows の標準フォント
+  # system: [Yu Mincho, MS PMincho, Meiryo]

@@ -1,0 +1,69 @@
+services:
+  # PLaMo 3 Translate 8B を llama.cpp で提供する翻訳サーバー
+  llm:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    command:
+      - -m
+      - /models/plamo-3-translate-8b-Q4_K_M.gguf
+      - -c
+      - "16384"
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --alias
+      - plamo-3-translate
+      - --jinja
+      - --no-prefill-assistant
+      - -ngl
+      - "99"
+    volumes:
+      - ./models:/models:ro
+    ports:
+      - "127.0.0.1:8000:8000"   # LAN には出さない
+    # イメージ既定の死活確認は 8080 番を見るので、上の --port に合わせる (モデルの読み込みに時間がかかるので start_period を長めに)
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  # GPU が無い PC 向け (CPU で動かす。GPU 版の数倍〜十数倍遅い)。
+  #   docker compose --profile cpu up -d llm-cpu
+  llm-cpu:
+    profiles: [cpu]
+    image: ghcr.io/ggml-org/llama.cpp:server
+    command:
+      - -m
+      - /models/plamo-3-translate-8b-Q4_K_M.gguf
+      - -c
+      - "8192"
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --alias
+      - plamo-3-translate
+      - --jinja
+      - --no-prefill-assistant
+    volumes:
+      - ./models:/models:ro
+    ports:
+      - "127.0.0.1:8000:8000"
+    # イメージ既定の死活確認は 8080 番を見るので、上の --port に合わせる (モデルの読み込みに時間がかかるので start_period を長めに)
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+    restart: unless-stopped

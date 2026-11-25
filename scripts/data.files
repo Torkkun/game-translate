@@ -1,0 +1,23 @@
+# データ用リポジトリ (mage data:save) で管理するファイル (glob、1 行 1 つ。* はフォルダをまたがず、** はまたぐ)。
+# 「!」で始まる行は、上で当たったものから外す (大きな Mod 本体やビルドしたものは Release に置く)。
+# 作業フォルダはこのリポジトリと同じで、ここに書いたものだけを追跡する。
+# このリポジトリの .gitignore では、同じものを外している (mage check が確かめる)。
+
+# ゲームごとの設定・訳文・用語集・手修正・調査メモ・ゲーム固有のツール
+games/**
+# ゲーム固有のコード (gtl のゲーム用コマンド、ゲームのデータ形式の読み書き、プラグイン)
+cmd/gtl/game_*.go
+internal/adapter/**
+internal/unityfs/**
+internal/zf/**
+plugins/**
+# ゲームごとの Mod の組み立て (mage package:<game>)
+magefiles/game_*.go
+# 個人用のメモ (対応状況の詳細・運用メモ・設計の経緯など)
+docs/private/**
+
+# ビルドしたもの・大きな Mod 本体 (Release に置く)
+!**/bin/**
+!**/obj/**
+!**/__pycache__/**
+!**/*.patchwad
