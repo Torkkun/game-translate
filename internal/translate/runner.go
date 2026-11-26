@@ -315,10 +315,14 @@ func (r *Runner) validate(u unit.Unit, terms []glossary.Term) []string {
 		w = append(w, fmt.Sprintf("用語集の訳語が無い: %s → %s", t.Source, t.Target))
 	}
 	if sp, ok := r.Opt.Speakers[u.Context.Speaker]; ok {
-		w = append(w, checkFirstPerson(u.Target, sp)...)
+		w = append(w, checkSpeaker(u.Target, sp)...)
 	}
 	return w
 }
+
+// unknownSpeakerNote は、話者が分からない台詞に添える指示。
+const unknownSpeakerNote = "話者は不明。原文から話者の性別や性格がはっきり分からないときは、" +
+	"「俺」「僕」「あたし」や「〜だぜ」「〜わよ」のように性別が強く出る言い方を避け、中立的な口調で訳すこと。"
 
 // buildContext はモデルに渡す状況説明を作る。
 func buildContext(u unit.Unit, speakers map[string]Speaker) string {
@@ -330,15 +334,22 @@ func buildContext(u unit.Unit, speakers map[string]Speaker) string {
 		parts = append(parts, u.Context.Note)
 	}
 	if s := u.Context.Speaker; s != "" {
-		if sp, ok := speakers[s]; ok && sp.Note != "" {
-			d := sp.Note
-			if sp.FirstPerson != "" {
-				d += " 一人称は「" + sp.FirstPerson + "」。"
+		if sp, ok := speakers[s]; ok {
+			name := s
+			if sp.Name != "" && sp.Name != s {
+				name = sp.Name
 			}
-			parts = append(parts, "Speaker: "+s+"\n話者について: "+d)
+			if d := sp.Describe(); d != "" {
+				parts = append(parts, "Speaker: "+name+"\n話者について: "+d+"\nこの話者の口調 (一人称・語尾) に合わせて訳すこと。")
+			} else {
+				parts = append(parts, "Speaker: "+name)
+			}
 		} else {
 			parts = append(parts, "Speaker: "+s)
 		}
+	} else if speakers != nil && u.Context.Kind != "ui" {
+		// キャラクター表があるのに話者が分からない台詞: 性別が強く出る言い方を避ける
+		parts = append(parts, unknownSpeakerNote)
 	}
 	return strings.Join(parts, "\n")
 }

@@ -18,7 +18,8 @@ func cmdRecheck(args []string) error {
 	flags := flag.NewFlagSet("recheck", flag.ExitOnError)
 	in := flags.String("in", "", "翻訳結果 JSONL (上書きする)")
 	gloss := flags.String("glossary", "", "用語集 YAML")
-	speakersPath := flags.String("speakers", "", "話者プロフィール YAML")
+	speakersPath := flags.String("speakers", "", "キャラクター表 YAML (characters.yaml)")
+	contextFrom := flags.String("context-from", "", "抽出し直した原文 JSONL。話者 (context.speaker) をここから取り直す (話者の割り当てを後から足したとき)")
 	flags.Parse(args)
 	if *in == "" {
 		flags.Usage()
@@ -35,6 +36,24 @@ func cmdRecheck(args []string) error {
 	units, err := unit.ReadJSONL(*in)
 	if err != nil {
 		return err
+	}
+	if *contextFrom != "" {
+		src, err := unit.ReadJSONL(*contextFrom)
+		if err != nil {
+			return err
+		}
+		speaker := map[string]string{}
+		for _, u := range src {
+			speaker[u.ID] = u.Context.Speaker
+		}
+		n := 0
+		for i := range units {
+			if s, ok := speaker[units[i].ID]; ok && s != units[i].Context.Speaker {
+				units[i].Context.Speaker = s
+				n++
+			}
+		}
+		log.Printf("話者を %d 件取り直しました (%s)", n, *contextFrom)
 	}
 	r := &translate.Runner{Glossary: g, Opt: translate.Options{Speakers: sp}}
 	before, after := 0, 0
@@ -127,4 +146,54 @@ func readFixes(path string) (map[string]string, error) {
 		fix[id] = strings.ReplaceAll(text, `\n`, "\n")
 	}
 	return fix, sc.Err()
+}
+
+// cmdSpeakersCheck は、話者が分かっている行の訳文がキャラクター表 (一人称・使わない言い方・語尾) と合っているかを
+// 状態 (機械翻訳・手修正済み) に関わらず一覧する。ファイルは書き換えない。
+func cmdSpeakersCheck(args []string) error {
+	flags := flag.NewFlagSet("speakers-check", flag.ExitOnError)
+	in := flags.String("in", "", "翻訳結果 JSONL")
+	speakersPath := flags.String("speakers", "", "キャラクター表 YAML (characters.yaml)")
+	contextFrom := flags.String("context-from", "", "話者をここ (抽出し直した原文 JSONL) から取る (任意)")
+	flags.Parse(args)
+	if *in == "" || *speakersPath == "" {
+		flags.Usage()
+		return fmt.Errorf("-in と -speakers は必須です")
+	}
+	sp, err := translate.LoadSpeakers(*speakersPath)
+	if err != nil {
+		return err
+	}
+	units, err := unit.ReadJSONL(*in)
+	if err != nil {
+		return err
+	}
+	speaker := map[string]string{}
+	if *contextFrom != "" {
+		src, err := unit.ReadJSONL(*contextFrom)
+		if err != nil {
+			return err
+		}
+		for _, u := range src {
+			speaker[u.ID] = u.Context.Speaker
+		}
+	}
+	checked, bad := 0, 0
+	for _, u := range units {
+		s := u.Context.Speaker
+		if v, ok := speaker[u.ID]; ok {
+			s = v
+		}
+		p, ok := sp[s]
+		if !ok || u.Target == "" {
+			continue
+		}
+		checked++
+		if w := translate.CheckSpeaker(u.Target, p); len(w) > 0 {
+			bad++
+			fmt.Printf("%s [%s, %s]\n  原文: %s\n  訳文: %s\n  警告: %s\n\n", u.ID, p.Name, u.Status, u.Source, u.Target, strings.Join(w, "; "))
+		}
+	}
+	fmt.Printf("キャラクター表と合わない行 %d 件 / 話者が分かる行 %d 件\n", bad, checked)
+	return nil
 }

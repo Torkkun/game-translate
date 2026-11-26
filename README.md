@@ -6,7 +6,7 @@ PC ゲーム (主に Steam) を、LLM の機械翻訳と手修正で別の言語
 このリポジトリに入っているのは、どのゲームにも共通する部分だけ。
 
 - 翻訳モデルの呼び出し (ローカルの [PLaMo 3 Translate](https://huggingface.co/pfnet/plamo-3-translate-8b-GGUF) / OpenAI 互換 API / Claude API)
-- 翻訳の流れ (翻訳メモリ・用語集・話者設定・書式記号の検証・再試行・手修正の取り込み)
+- 翻訳の流れ (翻訳メモリ・用語集・キャラクター表による口調の指示と確認・書式記号の検証・再試行・手修正の取り込み)
 - Mod の導入と取り外し (上書きするファイルの退避と記録)
 - コンテナで動かす開発環境と、Claude Code などのコーディングエージェントで作業するための決まり ([CLAUDE.md](CLAUDE.md))
 
@@ -21,6 +21,7 @@ PC ゲーム (主に Steam) を、LLM の機械翻訳と手修正で別の言語
 | [docs/SETUP.md](docs/SETUP.md) | セットアップ (GPU なし・WSL なしを含む) |
 | [docs/ENGINES.md](docs/ENGINES.md) | エンジン別の多言語化の方法 (ゲーム固有の拡張を作るときの出発点) |
 | [docs/RESEARCH.md](docs/RESEARCH.md) | 新しいゲームの調査手順 (既知の方法が当てはまらないとき) |
+| [docs/CHARACTERS.md](docs/CHARACTERS.md) | キャラクター表と口調の確認 (話者ごとの一人称・語尾のずれを防ぐ) |
 | [docs/LICENSES.md](docs/LICENSES.md) | ライセンスと配布の注意 |
 | [docs/RELEASE.md](docs/RELEASE.md) | CI、ツールのリリース、訳文と Mod の保存 |
 | [CLAUDE.md](CLAUDE.md) | コーディングエージェントで作業するときの決まり |
@@ -125,6 +126,7 @@ docker compose down
 | `ping` | 翻訳モデルの疎通確認と 1 文翻訳 |
 | `translate` | JSONL を一括翻訳 (翻訳メモリ・用語集・話者設定・検証と再試行つき) |
 | `warnings` / `recheck` / `review` | 警告の一覧 / モデルを呼ばずに検証し直す / 手修正 (fixes.tsv) の取り込み |
+| `speakers-check` | 訳文の口調 (一人称・語尾) がキャラクター表と合わない行の一覧 ([docs/CHARACTERS.md](docs/CHARACTERS.md)) |
 | `pack` / `unpack` | 原文を除いた訳文 TSV を作る / 抽出した原文に訳文 TSV を合わせる |
 | `install` / `uninstall` | `dist/<game>` の Mod をゲームに入れる / 外す |
 | (ゲーム固有の拡張) | 拡張があれば `gtl help` の「ゲーム固有のコマンド」に出る (抽出・ビルドなど) |

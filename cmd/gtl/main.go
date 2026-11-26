@@ -58,15 +58,16 @@ func coreCommands() map[string]func(context.Context, []string) error {
 		return func(_ context.Context, a []string) error { return f(a) }
 	}
 	return map[string]func(context.Context, []string) error{
-		"ping":      cmdPing,
-		"translate": cmdTranslate,
-		"warnings":  plain(cmdWarnings),
-		"recheck":   plain(cmdRecheck),
-		"review":    plain(cmdReview),
-		"pack":      plain(cmdPack),
-		"unpack":    plain(cmdUnpack),
-		"install":   plain(cmdInstall),
-		"uninstall": plain(cmdUninstall),
+		"ping":           cmdPing,
+		"translate":      cmdTranslate,
+		"warnings":       plain(cmdWarnings),
+		"recheck":        plain(cmdRecheck),
+		"speakers-check": plain(cmdSpeakersCheck),
+		"review":         plain(cmdReview),
+		"pack":           plain(cmdPack),
+		"unpack":         plain(cmdUnpack),
+		"install":        plain(cmdInstall),
+		"uninstall":      plain(cmdUninstall),
 	}
 }
 
@@ -78,6 +79,7 @@ func usage() {
   translate   TranslationUnit の JSONL を一括翻訳 (中断しても再実行で続きから)
   warnings    翻訳結果のうち警告が残った行を一覧表示
   recheck     モデルを呼ばずに用語集の表記ゆれ修正と検証をやり直す
+  speakers-check  訳文の口調がキャラクター表 (一人称・語尾) と合わない行を一覧する (手修正済みの行も)
   review      人が確認・修正した訳 (fixes.tsv) を取り込む
   pack        翻訳結果から原文を除いた訳文ファイル (<言語>.tsv) を作る
   unpack      抽出した原文に、訳文ファイルの訳を合わせる

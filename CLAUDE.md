@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 このリポジトリで作業する Claude (やほかのコーディングエージェント) 向けの決まりごと。
-人向けの説明は [README.md](README.md)、エンジンごとの手順は [docs/ENGINES.md](docs/ENGINES.md)、新しいゲームの調べ方は [docs/RESEARCH.md](docs/RESEARCH.md)。
+人向けの説明は [README.md](README.md)、エンジンごとの手順は [docs/ENGINES.md](docs/ENGINES.md)、新しいゲームの調べ方は [docs/RESEARCH.md](docs/RESEARCH.md)、口調のずれを防ぐキャラクター表は [docs/CHARACTERS.md](docs/CHARACTERS.md)。
 
 ## 何をするリポジトリか
 
@@ -53,8 +53,10 @@ Steam などの PC ゲームを、LLM の機械翻訳 + 手修正で別の言語
    `cmd/gtl/game_<game>.go` の init で `cli.Register` してコマンドにする。
    `gtl <game>-extract` で原文を TranslationUnit の JSONL (`work/<game>/source.jsonl`) にする。
    書式記号 (`{0}`, `<b>`, `\n` など) は訳文でも保たれるよう、検証 (`internal/check`) で拾える形にする
-3. **試験翻訳**: `gtl translate -limit 50` で数十行訳してユーザーに見せ、用語集 (`glossary.yaml`)・話者設定・文体を決める
-4. **全文翻訳**: `gtl translate` (中断しても続きから)。`gtl warnings` で警告を見て、`fixes.tsv` + `gtl review` で直す
+3. **キャラクター表と試験翻訳**: [docs/CHARACTERS.md](docs/CHARACTERS.md) の手順で、話者の割り当て (`context.speaker`) とキャラクター表 (`characters.yaml`) を作り、ユーザーに確認する。
+   口調は表で決め、性別だけで決めつけない。`gtl translate -limit 50 -speakers ...` で数十行訳してユーザーに見せ、用語集 (`glossary.yaml`)・表・文体を決める
+4. **全文翻訳**: `gtl translate -speakers games/<game>/characters.yaml` (中断しても続きから)。`gtl warnings` と `gtl speakers-check` で確かめ、`fixes.tsv` + `gtl review` で直す。
+   人が口調を直したら、多かった言い方をキャラクター表の `avoid` / `avoid_endings` に足す
 5. **ビルド**: `gtl <game>-build` で `dist/<game>` に Mod 一式を作る (ゲームフォルダには触らない)。手順が多いゲームは `magefiles/game_*.go` に `Package` のタスクとしてまとめる
 6. **導入**: ユーザーに確認してから `gtl install -game <game>`。実機で表示を確かめてもらう
 7. **保存**: `gtl pack` で `games/<game>/<言語>.tsv` を更新し、`./scripts/mage.sh release <game> <版> "メモ"` で訳文と Mod をデータ用リポジトリに保存する。詳しい状態は `docs/private/` のメモに書き、README の「対応実績」には 1 行だけ足す
