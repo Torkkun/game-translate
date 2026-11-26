@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/Torkkun/game-translate/internal/glossary"
@@ -155,6 +156,8 @@ func cmdSpeakersCheck(args []string) error {
 	in := flags.String("in", "", "翻訳結果 JSONL")
 	speakersPath := flags.String("speakers", "", "キャラクター表 YAML (characters.yaml)")
 	contextFrom := flags.String("context-from", "", "話者をここ (抽出し直した原文 JSONL) から取る (任意)")
+	masculine := flags.Bool("masculine", false, "gender: female の話者の男言葉 (あいつ・お前・〜か？・〜だろ など) も調べる。表の allow は除く (既に訳した分の点検用)")
+	summary := flags.Bool("summary", false, "行の一覧を出さず、話者ごと・警告の種類ごとの件数だけを出す")
 	flags.Parse(args)
 	if *in == "" || *speakersPath == "" {
 		flags.Usage()
@@ -179,6 +182,9 @@ func cmdSpeakersCheck(args []string) error {
 		}
 	}
 	checked, bad := 0, 0
+	type count struct{ checked, bad int }
+	bySpeaker := map[string]*count{}
+	byKind := map[string]int{}
 	for _, u := range units {
 		s := u.Context.Speaker
 		if v, ok := speaker[u.ID]; ok {
@@ -189,11 +195,69 @@ func cmdSpeakersCheck(args []string) error {
 			continue
 		}
 		checked++
-		if w := translate.CheckSpeaker(u.Target, p); len(w) > 0 {
+		c := bySpeaker[p.Name]
+		if c == nil {
+			c = &count{}
+			bySpeaker[p.Name] = c
+		}
+		c.checked++
+		if w := translate.CheckSpeaker(u.Target, p, *masculine); len(w) > 0 {
 			bad++
+			c.bad++
+			for _, x := range w {
+				for _, k := range warningKinds(x) {
+					byKind[k]++
+				}
+			}
+			if *summary {
+				continue
+			}
 			fmt.Printf("%s [%s, %s]\n  原文: %s\n  訳文: %s\n  警告: %s\n\n", u.ID, p.Name, u.Status, u.Source, u.Target, strings.Join(w, "; "))
 		}
 	}
+	if *summary {
+		names := make([]string, 0, len(bySpeaker))
+		for n := range bySpeaker {
+			names = append(names, n)
+		}
+		sort.Slice(names, func(i, j int) bool { return bySpeaker[names[i]].bad > bySpeaker[names[j]].bad })
+		fmt.Println("話者\t合わない行\t話者の行")
+		for _, n := range names {
+			if c := bySpeaker[n]; c.bad > 0 {
+				fmt.Printf("%s\t%d\t%d\n", n, c.bad, c.checked)
+			}
+		}
+		kinds := make([]string, 0, len(byKind))
+		for k := range byKind {
+			kinds = append(kinds, k)
+		}
+		sort.Slice(kinds, func(i, j int) bool { return byKind[kinds[i]] > byKind[kinds[j]] })
+		fmt.Println("\n警告の種類\t件数")
+		for _, k := range kinds {
+			fmt.Printf("%s\t%d\n", k, byKind[k])
+		}
+		fmt.Println()
+	}
 	fmt.Printf("キャラクター表と合わない行 %d 件 / 話者が分かる行 %d 件\n", bad, checked)
 	return nil
+}
+
+// warningKinds は警告文から集計用の種類を取り出す。言い方が複数並んでいれば 1 つずつに分ける
+// (「女性の話者に男言葉 (「あいつ」「〜か？」、…)」→「女性の話者に男言葉: あいつ」「女性の話者に男言葉: 〜か？」)。
+func warningKinds(w string) []string {
+	head, rest, ok := strings.Cut(w, " (")
+	if !ok {
+		return []string{w}
+	}
+	if strings.HasPrefix(head, "一人称") {
+		return []string{head}
+	}
+	if i := strings.Index(rest, "、"); i >= 0 {
+		rest = rest[:i]
+	}
+	var out []string
+	for _, x := range strings.Split(strings.Trim(rest, "「」"), "」「") {
+		out = append(out, head+": "+x)
+	}
+	return out
 }

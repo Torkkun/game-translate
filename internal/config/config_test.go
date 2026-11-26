@@ -37,3 +37,37 @@ func TestRejectUnknownProvider(t *testing.T) {
 		t.Fatal("知らない provider はエラーのはず")
 	}
 }
+
+func TestRoutes(t *testing.T) {
+	t.Setenv("GTL_LLM_URL", "")
+	p := filepath.Join(t.TempDir(), "gtl.yaml")
+	os.WriteFile(p, []byte(`
+models:
+  claude: {provider: anthropic}
+routes:
+  dialogue: claude
+  ui: default
+  story: agent
+`), 0o644)
+	c, err := Load(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Route("dialogue") != "claude" || c.Route("ui") != "default" || c.Route("item") != "default" || c.Route("story") != EngineAgent {
+		t.Fatalf("%+v", c.Routes)
+	}
+	if m, ok := c.Engine("claude"); !ok || m.Model != "claude-opus-5-5" || m.APIKeyEnv != "ANTHROPIC_API_KEY" {
+		t.Fatalf("%+v", m)
+	}
+	if m, _ := c.Engine("default"); m.Provider != "plamo" {
+		t.Fatalf("%+v", m)
+	}
+}
+
+func TestRoutesUnknownEngine(t *testing.T) {
+	p := filepath.Join(t.TempDir(), "gtl.yaml")
+	os.WriteFile(p, []byte("routes:\n  dialogue: nope\n"), 0o644)
+	if _, err := Load(p); err == nil {
+		t.Fatal("知らないエンジンはエラーのはず")
+	}
+}

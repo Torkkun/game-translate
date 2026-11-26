@@ -23,6 +23,7 @@ type Speaker struct {
 	Speech       string   `yaml:"speech"`        // 話し方・語尾 (例 "くだけた女性口調。〜よ、〜ね。男言葉は使わない")
 	Avoid        []string `yaml:"avoid"`         // 使わない言い方 (文中のどこでも)。例 ["俺", "僕"]
 	AvoidEndings []string `yaml:"avoid_endings"` // 使わない語尾 (文の終わりだけで見る)。例 ["だぜ", "ぜ", "ぞ"]
+	Allow        []string `yaml:"allow"`         // speakers-check -masculine で、gender: female でも許す男言葉の名前 (tone.go)。例 ["お前", "〜だろ"]、全部許すなら ["男言葉"]
 	Examples     []string `yaml:"examples"`      // 口調の例 (訳文の例)
 	Aliases      []string `yaml:"aliases"`       // 同じ人物を指す別の話者名 (context.speaker の表記ゆれ・音声の略号)
 }
@@ -86,6 +87,9 @@ func withDefaults(sp, d Speaker) Speaker {
 	if sp.AvoidEndings == nil {
 		sp.AvoidEndings = d.AvoidEndings
 	}
+	if sp.Allow == nil {
+		sp.Allow = d.Allow
+	}
 	return sp
 }
 
@@ -143,7 +147,11 @@ const sentenceEnd = `(?:[。！？!?…」』）)\s]|$)`
 //   - 一人称: 表の一人称と違う一人称 (俺/僕/あたし) が出ていないか
 //   - avoid: 使わない言い方が出ていないか
 //   - avoid_endings: 使わない語尾で文が終わっていないか
-func checkSpeaker(target string, sp Speaker) []string {
+func checkSpeaker(target string, sp Speaker) []string { return checkSpeakerOpt(target, sp, false) }
+
+// checkSpeakerOpt は checkSpeaker に加えて、masculine なら gender: female の話者の男言葉 (tone.go。あいつ・〜か？・〜だろ など。
+// allow に書いたものは除く) も調べる。翻訳の指示・再試行には使わず、既に訳した分の点検 (gtl speakers-check -masculine) で使う。
+func checkSpeakerOpt(target string, sp Speaker, masculine bool) []string {
 	var w []string
 	if sp.FirstPerson != "" {
 		for _, fp := range distinctFirstPersons {
@@ -167,6 +175,18 @@ func checkSpeaker(target string, sp Speaker) []string {
 		sort.Strings(endings)
 		w = append(w, fmt.Sprintf("話者に合わない語尾 (「%s」、%s)", strings.Join(endings, "」「"), who(sp)))
 	}
+	if masculine && sp.Gender == "female" {
+		var masc []string
+		for _, m := range masculineWarnings(target, sp.Allow, sp.FirstPerson != "") {
+			// avoid / avoid_endings で同じ言い方をもう警告していれば重ねない
+			if !strings.Contains(strings.Join(w, " "), "「"+m+"」") {
+				masc = append(masc, m)
+			}
+		}
+		if len(masc) > 0 {
+			w = append(w, fmt.Sprintf("女性の話者に男言葉 (「%s」、%s。乱暴な口調の人物なら表の allow に書く)", strings.Join(masc, "」「"), who(sp)))
+		}
+	}
 	return w
 }
 
@@ -188,4 +208,6 @@ func contains(xs []string, s string) bool {
 }
 
 // CheckSpeaker は訳文がキャラクター表と合っているかを調べる (gtl speakers-check 用)。
-func CheckSpeaker(target string, sp Speaker) []string { return checkSpeaker(target, sp) }
+func CheckSpeaker(target string, sp Speaker, masculine bool) []string {
+	return checkSpeakerOpt(target, sp, masculine)
+}

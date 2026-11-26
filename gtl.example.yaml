@@ -33,6 +33,18 @@ llm:
 #   url: http://127.0.0.1:11434
 #   model: qwen3:14b
 
+# 文の種類 (翻訳単位の context.kind) ごとに翻訳エンジンを使い分ける (docs/TRANSLATION.md)
+# models: 名前付きのエンジン。書き方は llm と同じ
+# models:
+#   claude:
+#     provider: anthropic
+#     api_key_env: ANTHROPIC_API_KEY
+# routes: 種類 → エンジンの名前。default = llm、agent = gtl translate では訳さず
+#         エージェント (Claude など) が gtl batch-export / batch-import で訳す、"*" = そのほかの種類
+# routes:
+#   dialogue: agent
+#   "*": default
+
 fonts:
   # ゲームに同梱するフォント (TTF/OTF)。フォントを差し替えるゲーム固有の拡張が使う
   # file: fonts/MPLUS1p-Bold.ttf

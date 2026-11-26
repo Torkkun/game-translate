@@ -22,6 +22,7 @@ PC ゲーム (主に Steam) を、LLM の機械翻訳と手修正で別の言語
 | [docs/ENGINES.md](docs/ENGINES.md) | エンジン別の多言語化の方法 (ゲーム固有の拡張を作るときの出発点) |
 | [docs/RESEARCH.md](docs/RESEARCH.md) | 新しいゲームの調査手順 (既知の方法が当てはまらないとき) |
 | [docs/CHARACTERS.md](docs/CHARACTERS.md) | キャラクター表と口調の確認 (話者ごとの一人称・語尾のずれを防ぐ) |
+| [docs/TRANSLATION.md](docs/TRANSLATION.md) | 翻訳エンジンの使い分け (会話はエージェントが直接訳し、UI・説明文は翻訳モデルで一括) |
 | [docs/LICENSES.md](docs/LICENSES.md) | ライセンスと配布の注意 |
 | [docs/RELEASE.md](docs/RELEASE.md) | CI、ツールのリリース、訳文と Mod の保存 |
 | [CLAUDE.md](CLAUDE.md) | コーディングエージェントで作業するときの決まり |
@@ -127,6 +128,7 @@ docker compose down
 | `translate` | JSONL を一括翻訳 (翻訳メモリ・用語集・話者設定・検証と再試行つき) |
 | `warnings` / `recheck` / `review` | 警告の一覧 / モデルを呼ばずに検証し直す / 手修正 (fixes.tsv) の取り込み |
 | `speakers-check` | 訳文の口調 (一人称・語尾) がキャラクター表と合わない行の一覧 ([docs/CHARACTERS.md](docs/CHARACTERS.md)) |
+| `batch-export` / `batch-import` | エージェント (Claude など) が直接訳す行を、文脈付きの作業ファイルに書き出す / 訳を取り込んで自動チェック ([docs/TRANSLATION.md](docs/TRANSLATION.md)) |
 | `pack` / `unpack` | 原文を除いた訳文 TSV を作る / 抽出した原文に訳文 TSV を合わせる |
 | `install` / `uninstall` | `dist/<game>` の Mod をゲームに入れる / 外す |
 | (ゲーム固有の拡張) | 拡張があれば `gtl help` の「ゲーム固有のコマンド」に出る (抽出・ビルドなど) |

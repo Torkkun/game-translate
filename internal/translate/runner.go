@@ -52,12 +52,16 @@ type Stats struct {
 	FromTM     int // 翻訳メモリから再利用した件数
 	Warned     int // 警告が残った件数
 	Failed     int // エラーで訳せなかった件数
+	Deferred   int // エージェント (Claude) に回した件数 (routes が agent。batch-export で渡す)
 	Elapsed    time.Duration
 }
 
 // Runner は一括翻訳を実行する。
 type Runner struct {
-	LLM      llm.Translator
+	LLM llm.Translator
+	// Route は翻訳単位ごとに使う翻訳器を選ぶ (文の種類で PLaMo と Claude を使い分けるなど)。nil なら LLM。
+	// agent が true の単位は訳さずに残す (エージェントが gtl batch-export / batch-import で訳す)
+	Route    func(u unit.Unit) (tr llm.Translator, agent bool)
 	TM       *tm.TM // nil なら翻訳メモリを使わない
 	Glossary *glossary.Glossary
 	Opt      Options
@@ -117,13 +121,19 @@ func (r *Runner) Run(ctx context.Context) (Stats, error) {
 			continue
 		}
 		results[i] = u
+		if r.Route != nil {
+			if _, agent := r.Route(u); agent {
+				st.Deferred++
+				continue
+			}
+		}
 		if r.Opt.Limit > 0 && nTodo >= r.Opt.Limit {
 			continue
 		}
 		todo[i] = true
 		nTodo++
 	}
-	r.logf("入力 %d 件 / 訳済み %d 件 / 今回訳す %d 件", st.Total, st.Skipped, nTodo)
+	r.logf("入力 %d 件 / 訳済み %d 件 / 今回訳す %d 件 / エージェントに回す %d 件", st.Total, st.Skipped, nTodo, st.Deferred)
 
 	app, err := unit.OpenAppender(r.Opt.Out)
 	if err != nil {
@@ -226,6 +236,12 @@ func (r *Runner) Run(ctx context.Context) (Stats, error) {
 func (r *Runner) translateOne(ctx context.Context, u unit.Unit, history []llm.Pair) (unit.Unit, string, error) {
 	key := tm.Key(u.Source, u.Context.Speaker, r.Opt.TargetLang, r.Opt.Form)
 	terms := r.Glossary.Match(u.Source)
+	tr := r.LLM
+	if r.Route != nil {
+		if t, _ := r.Route(u); t != nil {
+			tr = t
+		}
+	}
 
 	if r.TM != nil && r.Opt.UseTM {
 		if t, ok, err := r.TM.Get(key); err != nil {
@@ -247,7 +263,7 @@ func (r *Runner) translateOne(ctx context.Context, u unit.Unit, history []llm.Pa
 		Glossary:   glossary.ToLLM(terms),
 		History:    history,
 	}
-	out, err := r.call(ctx, req)
+	out, err := r.call(ctx, tr, req)
 	if err != nil {
 		return u, "", err
 	}
@@ -262,7 +278,7 @@ func (r *Runner) translateOne(ctx context.Context, u unit.Unit, history []llm.Pa
 	temps := []float64{0.4, 0.7, 0.9, 1.0}
 	for a := 1; a < attempts && len(u.Warnings) > 0; a++ {
 		req.Temperature = temps[min(a-1, len(temps)-1)]
-		if out2, err := r.call(ctx, req); err == nil {
+		if out2, err := r.call(ctx, tr, req); err == nil {
 			u2 := u
 			u2.Target = glossary.ApplyAliases(out2, terms)
 			u2.Warnings = r.validate(u2, terms)
@@ -281,7 +297,7 @@ func (r *Runner) translateOne(ctx context.Context, u unit.Unit, history []llm.Pa
 	return u, "llm", nil
 }
 
-func (r *Runner) call(ctx context.Context, req llm.Request) (string, error) {
+func (r *Runner) call(ctx context.Context, tr llm.Translator, req llm.Request) (string, error) {
 	var err error
 	for attempt := 0; attempt <= r.Opt.Retries; attempt++ {
 		if attempt > 0 {
@@ -292,7 +308,7 @@ func (r *Runner) call(ctx context.Context, req llm.Request) (string, error) {
 			}
 		}
 		var out string
-		out, err = r.LLM.Translate(ctx, req)
+		out, err = tr.Translate(ctx, req)
 		if err == nil {
 			return out, nil
 		}

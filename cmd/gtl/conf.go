@@ -62,13 +62,16 @@ func (f *llmFlags) load() (*config.Config, error) {
 }
 
 // backend は設定に合った翻訳器を作る。
-func backend(c *config.Config) llm.Backend {
+func backend(c *config.Config) llm.Backend { return backendFor(c, c.LLM) }
+
+// backendFor は翻訳エンジン l の翻訳器を作る (gtl.yaml の models の 1 つなど)。
+func backendFor(c *config.Config, l config.LLM) llm.Backend {
 	return llm.NewBackend(llm.Settings{
-		Provider: c.LLM.Provider,
-		URL:      c.LLM.URL,
-		Model:    c.LLM.Model,
-		APIKey:   c.LLM.APIKey(),
-		Effort:   c.LLM.Effort,
+		Provider: l.Provider,
+		URL:      l.URL,
+		Model:    l.Model,
+		APIKey:   l.APIKey(),
+		Effort:   l.Effort,
 		Names:    config.LangName,
 	})
 }

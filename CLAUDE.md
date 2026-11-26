@@ -1,7 +1,9 @@
 # CLAUDE.md
 
 このリポジトリで作業する Claude (やほかのコーディングエージェント) 向けの決まりごと。
-人向けの説明は [README.md](README.md)、エンジンごとの手順は [docs/ENGINES.md](docs/ENGINES.md)、新しいゲームの調べ方は [docs/RESEARCH.md](docs/RESEARCH.md)、口調のずれを防ぐキャラクター表は [docs/CHARACTERS.md](docs/CHARACTERS.md)。
+人向けの説明は [README.md](README.md)、エンジンごとの手順は [docs/ENGINES.md](docs/ENGINES.md)、新しいゲームの調べ方は [docs/RESEARCH.md](docs/RESEARCH.md)、口調のずれを防ぐキャラクター表は [docs/CHARACTERS.md](docs/CHARACTERS.md)、翻訳エンジンの使い分けとエージェントが直接訳す流れは [docs/TRANSLATION.md](docs/TRANSLATION.md)。
+
+過去のつまずきと対策は [docs/LESSONS.md](docs/LESSONS.md)。新しいゲームに取りかかる前と、全文翻訳の後に読む。
 
 ## 何をするリポジトリか
 
@@ -55,11 +57,24 @@ Steam などの PC ゲームを、LLM の機械翻訳 + 手修正で別の言語
    書式記号 (`{0}`, `<b>`, `\n` など) は訳文でも保たれるよう、検証 (`internal/check`) で拾える形にする
 3. **キャラクター表と試験翻訳**: [docs/CHARACTERS.md](docs/CHARACTERS.md) の手順で、話者の割り当て (`context.speaker`) とキャラクター表 (`characters.yaml`) を作り、ユーザーに確認する。
    口調は表で決め、性別だけで決めつけない。`gtl translate -limit 50 -speakers ...` で数十行訳してユーザーに見せ、用語集 (`glossary.yaml`)・表・文体を決める
-4. **全文翻訳**: `gtl translate -speakers games/<game>/characters.yaml` (中断しても続きから)。`gtl warnings` と `gtl speakers-check` で確かめ、`fixes.tsv` + `gtl review` で直す。
+4. **全文翻訳**: 文の種類ごとに訳し方を決め、`gtl.yaml` の `routes` に書く ([docs/TRANSLATION.md](docs/TRANSLATION.md))。
+   基本は、ストーリー・会話はエージェント (Claude) が直接訳し (`agent`)、UI・アイテム名・大量の説明文は翻訳モデル (PLaMo) で訳して自動チェックにかける。
+   `gtl translate -speakers games/<game>/characters.yaml` (中断しても続きから) でモデルの分を訳し、
+   エージェントの分は `gtl batch-export` → 作業ファイルの `target` を埋める → `gtl batch-import` で取り込む。
+   `gtl warnings` と `gtl speakers-check` で確かめ、`fixes.tsv` + `gtl review` で直す。
    人が口調を直したら、多かった言い方をキャラクター表の `avoid` / `avoid_endings` に足す
 5. **ビルド**: `gtl <game>-build` で `dist/<game>` に Mod 一式を作る (ゲームフォルダには触らない)。手順が多いゲームは `magefiles/game_*.go` に `Package` のタスクとしてまとめる
 6. **導入**: ユーザーに確認してから `gtl install -game <game>`。実機で表示を確かめてもらう
 7. **保存**: `gtl pack` で `games/<game>/<言語>.tsv` を更新し、`./scripts/mage.sh release <game> <版> "メモ"` で訳文と Mod をデータ用リポジトリに保存する。詳しい状態は `docs/private/` のメモに書き、README の「対応実績」には 1 行だけ足す
+
+### 訳文を確かめるときの決まり
+
+- 会話・台詞のある行は、話者とキャラクター表があるなら必ず `gtl speakers-check -summary` を通し、件数をユーザーに報告する。
+  キャラクター表より前に訳した分は `-masculine` も付けて、表に書いていない男言葉 (あいつ・お前・〜か？・〜だろ・〜だな・〜ぜ・命令形) を点検する。
+  乱暴な口調の人物は表の `allow` で許す ([docs/CHARACTERS.md](docs/CHARACTERS.md#男言葉の点検))
+- 口調を決めるのはキャラクター表。勝気・荒っぽい人物でも、どこまで許すか (例: 「あんた」「〜だろ」は可、「俺」「〜ぜ」は不可) を表に書く
+- 大量に訳し直す前に、件数と代表例をユーザーに見せて判断を待つ。手修正済みの行 (`fixes.tsv`) は上書きしない
+- 確認の言い方を足したら、正しい訳で誤検知が出ないことをテストで確かめる
 
 ## コードの決まり
 

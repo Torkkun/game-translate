@@ -22,6 +22,38 @@ type Config struct {
 	TargetLang string `yaml:"target_lang"` // 訳文の言語コード (例 ja, ko, zh-Hans)
 	LLM        LLM    `yaml:"llm"`
 	Fonts      Fonts  `yaml:"fonts"`
+	// Models は名前付きの翻訳エンジン (routes で使い分ける)。llm は "default" という名前で使える
+	Models map[string]LLM `yaml:"models"`
+	// Routes は文の種類 (翻訳単位の context.kind) → 使うエンジンの名前。
+	// "default" は llm、"agent" は gtl translate では訳さず、Claude などのエージェントが gtl batch-export / batch-import で訳す。
+	// "*" はほかのどれにも当たらない種類。書いていない種類は llm で訳す
+	Routes map[string]string `yaml:"routes"`
+}
+
+// 特別なエンジンの名前
+const (
+	EngineDefault = "default" // llm の設定
+	EngineAgent   = "agent"   // エージェント (Claude) が batch-export / batch-import で訳す
+)
+
+// Route は文の種類 (context.kind) に使うエンジンの名前を返す。
+func (c *Config) Route(kind string) string {
+	if r, ok := c.Routes[kind]; ok && r != "" {
+		return r
+	}
+	if r, ok := c.Routes["*"]; ok && r != "" {
+		return r
+	}
+	return EngineDefault
+}
+
+// Engine は名前からエンジンの設定を返す ("default" は llm)。
+func (c *Config) Engine(name string) (LLM, bool) {
+	if name == EngineDefault || name == "" {
+		return c.LLM, true
+	}
+	l, ok := c.Models[name]
+	return l, ok
 }
 
 // LLM は翻訳に使うモデルの設定。
@@ -94,11 +126,22 @@ func (c *Config) fill() {
 	if c.TargetLang == "" {
 		c.TargetLang = "ja"
 	}
-	l := &c.LLM
+	fillLLM(&c.LLM, true)
+	for name, m := range c.Models {
+		fillLLM(&m, false)
+		c.Models[name] = m
+	}
+	if len(c.Fonts.System) == 0 {
+		c.Fonts.System = DefaultSystemFonts(c.TargetLang)
+	}
+}
+
+// fillLLM はエンジンの設定の空の項目に既定値を入れる。env なら GTL_LLM_URL で URL を上書きする (llm だけ)。
+func fillLLM(l *LLM, env bool) {
 	if l.Provider == "" {
 		l.Provider = "plamo"
 	}
-	if v := os.Getenv("GTL_LLM_URL"); v != "" {
+	if v := os.Getenv("GTL_LLM_URL"); env && v != "" {
 		l.URL = v
 	}
 	switch l.Provider {
@@ -127,21 +170,41 @@ func (c *Config) fill() {
 			l.Effort = "low"
 		}
 	}
-	if len(c.Fonts.System) == 0 {
-		c.Fonts.System = DefaultSystemFonts(c.TargetLang)
-	}
 }
 
 // Validate は設定の誤りを返す。
 func (c *Config) Validate() error {
-	switch c.LLM.Provider {
+	if err := validateLLM("llm", c.LLM); err != nil {
+		return err
+	}
+	for name, m := range c.Models {
+		if name == EngineDefault || name == EngineAgent {
+			return fmt.Errorf("models に %q という名前は使えません (予約済み)", name)
+		}
+		if err := validateLLM("models."+name, m); err != nil {
+			return err
+		}
+	}
+	for kind, name := range c.Routes {
+		if name == EngineDefault || name == EngineAgent {
+			continue
+		}
+		if _, ok := c.Models[name]; !ok {
+			return fmt.Errorf("routes.%s のエンジン %q が models にありません", kind, name)
+		}
+	}
+	return nil
+}
+
+func validateLLM(where string, l LLM) error {
+	switch l.Provider {
 	case "plamo", "anthropic":
 	case "openai":
-		if c.LLM.Model == "" {
-			return fmt.Errorf("llm.provider が openai のときは llm.model が必要です")
+		if l.Model == "" {
+			return fmt.Errorf("%s.provider が openai のときは %s.model が必要です", where, where)
 		}
 	default:
-		return fmt.Errorf("llm.provider は plamo / openai / anthropic のどれかです (%q)", c.LLM.Provider)
+		return fmt.Errorf("%s.provider は plamo / openai / anthropic のどれかです (%q)", where, l.Provider)
 	}
 	return nil
 }
