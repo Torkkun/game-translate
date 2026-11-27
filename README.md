@@ -38,12 +38,12 @@ PC ゲーム (主に Steam) を、LLM の機械翻訳と手修正で別の言語
 
 | ゲーム | エンジン | 方式 | 訳 |
 |---|---|---|---|
-| Blacksad: Under the Skin | Unity (Mono) | BepInEx プラグインで台詞・メニューを差し替え | 機械翻訳 + 手修正 |
+| Blacksad: Under the Skin | Unity (Mono) | BepInEx プラグインで台詞・メニューを差し替え | エージェントの直接翻訳 + 手修正 |
 | L.A. Noire | 独自エンジン | PC 版のデータに同梱されている公式日本語を英語の枠へ | 公式訳 |
 | Grim Fandango Remastered | 独自エンジン | 描画フック DLL で日本語を描き、テキストを置き換え | 機械翻訳 + 手修正 |
-| Kathy Rain | Adventure Game Studio | 新しい AGS エンジン + UTF-8 の翻訳ファイル | 機械翻訳 + 手修正 |
-| The Roottrees are Dead | Godot 4 | 言語の枠を差し替え + 日本語検索の追加スクリプト | 機械翻訳 |
-| Subverse | Unreal Engine 4 | 訳文とフォントを入れた追加 pak | 機械翻訳 |
+| Kathy Rain | Adventure Game Studio | 新しい AGS エンジン (古い版との動きの違いを直すパッチ付き) + UTF-8 の翻訳ファイル | 機械翻訳 + 手修正 |
+| The Roottrees are Dead | Godot 4 | 言語の枠を差し替え + 日本語検索の追加スクリプト | 機械翻訳 + 手修正 |
+| Subverse | Unreal Engine 4 | 訳文とフォントを入れた追加 pak (locres に無い文字列も追加) | 機械翻訳 + 手修正 |
 | Hotline Miami 2: Wrong Number | 独自エンジン | 同梱の公式日本語を英語の枠へ + フォント | 公式訳 |
 | Oxygen Not Included | Unity (Mono) | 公式の翻訳 Mod の仕組み | 既存のファン翻訳 (MIT) + 追加訳 |
 
@@ -78,8 +78,9 @@ cp gtl.example.yaml gtl.yaml        # 言語・モデル・フォントを書き
 ./scripts/gtl.sh translate -in work/<game>/source.jsonl -out games/<game>/ko.jsonl \
   -target ko -glossary games/<game>/glossary.yaml
 
-# 3. 警告を確認して手で直す (fixes.tsv に「ID<TAB>訳文」)
+# 3. 警告・訳のぶれを確認して手で直す (fixes.tsv に「ID<TAB>訳文」)
 ./scripts/gtl.sh warnings -in games/<game>/ja.jsonl
+./scripts/gtl.sh consistency -in games/<game>/ja.jsonl
 ./scripts/gtl.sh review -in games/<game>/ja.jsonl -fixes games/<game>/fixes.tsv
 
 # 4. Mod を作って入れる (ゲームフォルダに書き込むのはここだけ)
@@ -128,6 +129,7 @@ docker compose down
 | `translate` | JSONL を一括翻訳 (翻訳メモリ・用語集・話者設定・検証と再試行つき) |
 | `warnings` / `recheck` / `review` | 警告の一覧 / モデルを呼ばずに検証し直す / 手修正 (fixes.tsv) の取り込み |
 | `speakers-check` | 訳文の口調 (一人称・語尾) がキャラクター表と合わない行の一覧 ([docs/CHARACTERS.md](docs/CHARACTERS.md)) |
+| `consistency` | 同じ原文で訳が違う組 (UI の語・人名) と、用語集に無い固有名詞の候補の一覧 ([docs/TRANSLATION.md](docs/TRANSLATION.md#訳した後の点検)) |
 | `batch-export` / `batch-import` | エージェント (Claude など) が直接訳す行を、文脈付きの作業ファイルに書き出す / 訳を取り込んで自動チェック ([docs/TRANSLATION.md](docs/TRANSLATION.md)) |
 | `pack` / `unpack` | 原文を除いた訳文 TSV を作る / 抽出した原文に訳文 TSV を合わせる |
 | `install` / `uninstall` | `dist/<game>` の Mod をゲームに入れる / 外す |

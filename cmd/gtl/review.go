@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Torkkun/game-translate/internal/check"
 	"github.com/Torkkun/game-translate/internal/glossary"
 	"github.com/Torkkun/game-translate/internal/translate"
 	"github.com/Torkkun/game-translate/internal/unit"
@@ -82,6 +83,8 @@ func cmdRecheck(args []string) error {
 //	ID <TAB> =         … 今の訳文で問題なし (警告を消す)
 //
 // 取り込んだ行は status=reviewed になり、再翻訳 (-retry-warned を含む) で上書きされない。
+// 訳文を書き換えた行は書式記号・改行の数を検証し直し、問題があれば警告として残す
+// (手修正で %s を足した・文字どおりの \n が入った、などを素通りさせない)。英語のまま残すのは人の判断なので「未翻訳」は警告しない。
 func cmdReview(args []string) error {
 	flags := flag.NewFlagSet("review", flag.ExitOnError)
 	in := flags.String("in", "", "翻訳結果 JSONL (上書きする)")
@@ -100,17 +103,22 @@ func cmdReview(args []string) error {
 	if err != nil {
 		return err
 	}
-	applied := 0
+	applied, warned := 0, 0
 	for i, u := range units {
 		t, ok := fix[u.ID]
 		if !ok {
 			continue
 		}
-		if t != "=" {
-			units[i].Target = t
-		}
 		units[i].Status = unit.StatusReviewed
 		units[i].Warnings = nil
+		if t != "=" {
+			units[i].Target = t
+			if w := reviewWarnings(u.Source, t, u.Constraints); len(w) > 0 {
+				units[i].Warnings = w
+				warned++
+				log.Printf("警告: %s の手修正: %s", u.ID, strings.Join(w, "; "))
+			}
+		}
 		applied++
 		delete(fix, u.ID)
 	}
@@ -120,8 +128,19 @@ func cmdReview(args []string) error {
 	if err := unit.WriteJSONL(*in, units); err != nil {
 		return err
 	}
-	log.Printf("修正を %d 件取り込みました", applied)
+	log.Printf("修正を %d 件取り込みました (うち警告あり %d 件。gtl warnings で一覧できる)", applied, warned)
 	return nil
+}
+
+// reviewWarnings は手修正の訳文を検証する。「未翻訳に見える」は人が英語のまま残した場合があるので外す。
+func reviewWarnings(source, target string, c unit.Constraints) []string {
+	var out []string
+	for _, w := range check.Check(source, target, c) {
+		if w != "未翻訳に見える" {
+			out = append(out, w)
+		}
+	}
+	return out
 }
 
 // readFixes は fixes.tsv を読み、ID → 訳文 ("=" は「今の訳で問題なし」) を返す。

@@ -54,17 +54,20 @@ Steam などの PC ゲームを、LLM の機械翻訳 + 手修正で別の言語
 2. **抽出**: ゲーム固有の拡張として `internal/adapter/<game>/` に読み書きのコードと往復テスト (読む → 書く → 同じバイト列) を作り、
    `cmd/gtl/game_<game>.go` の init で `cli.Register` してコマンドにする。
    `gtl <game>-extract` で原文を TranslationUnit の JSONL (`work/<game>/source.jsonl`) にする。
-   書式記号 (`{0}`, `<b>`, `\n` など) は訳文でも保たれるよう、検証 (`internal/check`) で拾える形にする
+   書式記号 (`{0}`, `<b>`, `\n` など) は訳文でも保たれるよう、検証 (`internal/check`) で拾える形にする。
+   ゲームが内部の ID・キーとしても使う文字列 (照合や ID の組み立てに使う表示名・音声の名前など) は grep で探し、訳さない (用語集で英語に固定するか、対象から外す)
 3. **キャラクター表と試験翻訳**: [docs/CHARACTERS.md](docs/CHARACTERS.md) の手順で、話者の割り当て (`context.speaker`) とキャラクター表 (`characters.yaml`) を作り、ユーザーに確認する。
-   口調は表で決め、性別だけで決めつけない。`gtl translate -limit 50 -speakers ...` で数十行訳してユーザーに見せ、用語集 (`glossary.yaml`)・表・文体を決める
+   口調は表で決め、性別だけで決めつけない。`gtl translate -limit 50 -speakers ...` で数十行訳してユーザーに見せ、用語集 (`glossary.yaml`)・表・文体を決める。
+   用語集には、`gtl consistency -in work/<game>/source.jsonl -min-names 3` の「固有名詞の候補」(人名・地名・艦名) と、よく出る UI の語を全文翻訳の前に入れる
 4. **全文翻訳**: 文の種類ごとに訳し方を決め、`gtl.yaml` の `routes` に書く ([docs/TRANSLATION.md](docs/TRANSLATION.md))。
    基本は、ストーリー・会話はエージェント (Claude) が直接訳し (`agent`)、UI・アイテム名・大量の説明文は翻訳モデル (PLaMo) で訳して自動チェックにかける。
    `gtl translate -speakers games/<game>/characters.yaml` (中断しても続きから) でモデルの分を訳し、
    エージェントの分は `gtl batch-export` → 作業ファイルの `target` を埋める → `gtl batch-import` で取り込む。
-   `gtl warnings` と `gtl speakers-check` で確かめ、`fixes.tsv` + `gtl review` で直す。
+   `gtl warnings`・`gtl speakers-check`・`gtl consistency` で確かめ、翻訳モデルの訳は UI の短い行を中心に見直して ([docs/TRANSLATION.md](docs/TRANSLATION.md#訳した後の点検))、`fixes.tsv` + `gtl review` で直す。
    人が口調を直したら、多かった言い方をキャラクター表の `avoid` / `avoid_endings` に足す
 5. **ビルド**: `gtl <game>-build` で `dist/<game>` に Mod 一式を作る (ゲームフォルダには触らない)。手順が多いゲームは `magefiles/game_*.go` に `Package` のタスクとしてまとめる
-6. **導入**: ユーザーに確認してから `gtl install -game <game>`。実機で表示を確かめてもらう
+6. **導入**: ユーザーに確認してから `gtl install -game <game>`。入れるのは最新の訳文から組み立て直した `dist/<game>` だけにし、入れた主なファイルの sha256 を確かめる。
+   実機で表示 (字幕・選択肢・メニュー・長い台詞・フォントの違う画面) と主な操作を確かめてもらう
 7. **保存**: `gtl pack` で `games/<game>/<言語>.tsv` を更新し、`./scripts/mage.sh release <game> <版> "メモ"` で訳文と Mod をデータ用リポジトリに保存する。詳しい状態は `docs/private/` のメモに書き、README の「対応実績」には 1 行だけ足す
 
 ### 訳文を確かめるときの決まり
@@ -75,6 +78,9 @@ Steam などの PC ゲームを、LLM の機械翻訳 + 手修正で別の言語
 - 口調を決めるのはキャラクター表。勝気・荒っぽい人物でも、どこまで許すか (例: 「あんた」「〜だろ」は可、「俺」「〜ぜ」は不可) を表に書く
 - 大量に訳し直す前に、件数と代表例をユーザーに見せて判断を待つ。手修正済みの行 (`fixes.tsv`) は上書きしない
 - 確認の言い方を足したら、正しい訳で誤検知が出ないことをテストで確かめる
+- 訳文は gtl の外 (スクリプト・JSON など) で直さず、`fixes.tsv` + `gtl review` で取り込む (手修正の書式記号のずれも警告される)。
+  原文に無い書式指定 (`%s` など) は、ほかの言語の訳にあっても足さない
+- 同じ原文の訳がぶれていないかを `gtl consistency` で確かめる。人名・UI の語の不統一は用語集に足してから直す
 
 ## コードの決まり
 

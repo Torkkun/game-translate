@@ -3,6 +3,8 @@ package translate
 import (
 	"regexp"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 // 男言葉の検出 (日本語の訳文用)。
@@ -24,8 +26,8 @@ type masculineMarker struct {
 // AllowAllMasculine は allow に書くと男言葉の検出を全部外す名前。
 const AllowAllMasculine = "男言葉"
 
-// 文の終わり (語尾の直後に来るもの)。sentenceEnd と同じだが、伸ばし・繰り返しの記号も許す。
-const toneEnd = `[ーっッ〜]*(?:[。！？!?…‥」』）)\s、]|$)`
+// 文の終わり (語尾の直後に来るもの)。sentenceEnd と同じだが、伸ばし・繰り返しの記号とダッシュ (言っただろ――) も許す。
+const toneEnd = `[ーっッ〜]*(?:[。！？!?…‥」』）)\s、―—]|$)`
 
 func hasAnySuffix(s string, xs ...string) bool {
 	for _, x := range xs {
@@ -40,6 +42,14 @@ var masculineMarkers = []masculineMarker{
 	{name: "俺", re: regexp.MustCompile(`俺|オレ様`)},
 	{name: "お前", re: regexp.MustCompile(`お前|おまえ|てめえ|てめぇ|テメエ|テメェ|貴様`)},
 	{
+		name: "君", re: regexp.MustCompile(`君(?:たち|ら|[はがをにのもとへや、。！？!?])`),
+		// 名前に付く「〜君」・「諸君」は外す (前が漢字・カタカナ)
+		ok: func(before, m, rest string) bool {
+			r, _ := utf8.DecodeLastRuneInString(before)
+			return unicode.Is(unicode.Han, r) || unicode.In(r, unicode.Katakana)
+		},
+	},
+	{
 		name: "あいつ", re: regexp.MustCompile(`[あこそど]いつ`),
 		// 「あそこ/そこ/どこ + いつも」などを外す
 		ok: func(before, m, rest string) bool {
@@ -52,7 +62,7 @@ var masculineMarkers = []masculineMarker{
 		ok: func(before, m, rest string) bool { return hasAnySuffix(before, "どう", "な", "それ", "ど") }, // どうぞ・なぜ・それぞ(れ)・など
 	},
 	{
-		name: "〜だな・〜するな", re: regexp.MustCompile(`(?:(?:だ|よ|る|た|ねえ)な|[うくすつぬむぶぐる]なよ)` + toneEnd),
+		name: "〜だな・〜するな", re: regexp.MustCompile(`(?:(?:だ|よ|る|た|ねえ|やっぱり|やはり)な|[うくすつぬむぶぐる]なよ)` + toneEnd),
 		// 「〜かな」は検出しない (正規表現に含めない)。「〜ような」「〜みたいな」は文の途中なので文末で切れない
 	},
 	{
@@ -91,7 +101,7 @@ var masculineMarkers = []masculineMarker{
 	{
 		name: "命令形 (〜しろ・〜やれ)",
 		ok:   func(before, m, rest string) bool { return strings.HasSuffix(before, "何") }, // 何しろ
-		re:   regexp.MustCompile(`(?:しろ|やれ|来い|待て|黙れ|見ろ|言え|行け|失せろ|寄こせ|よこせ|どけ|やめろ|止めろ|消えろ|聞け|答えろ|急げ|逃げろ|伏せろ|見せろ|任せろ|貸せ|出せ|離せ|放せ|来るな|するな|言うな)` + toneEnd),
+		re:   regexp.MustCompile(`(?:しろ|やれ|来い|待て|黙れ|見ろ|言え|行け|動け|走れ|帰れ|戻れ|座れ|乗れ|下がれ|起きろ|落ち着け|失せろ|寄こせ|よこせ|どけ|やめろ|止めろ|消えろ|聞け|答えろ|急げ|逃げろ|伏せろ|見せろ|任せろ|貸せ|出せ|離せ|放せ|来るな|するな|言うな)` + toneEnd),
 	},
 	{name: "おい", re: regexp.MustCompile(`(?:^|[」。！？!?\s])おい[、！!…]`)},
 }

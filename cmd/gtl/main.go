@@ -64,6 +64,7 @@ func coreCommands() map[string]func(context.Context, []string) error {
 		"warnings":       plain(cmdWarnings),
 		"recheck":        plain(cmdRecheck),
 		"speakers-check": plain(cmdSpeakersCheck),
+		"consistency":    plain(cmdConsistency),
 		"batch-export":   plain(cmdBatchExport),
 		"batch-import":   plain(cmdBatchImport),
 		"review":         plain(cmdReview),
@@ -83,6 +84,7 @@ func usage() {
   warnings    翻訳結果のうち警告が残った行を一覧表示
   recheck     モデルを呼ばずに用語集の表記ゆれ修正と検証をやり直す
   speakers-check  訳文の口調がキャラクター表 (一人称・語尾) と合わない行を一覧する (手修正済みの行も)
+  consistency     同じ原文で訳が違う組 (UI の語・人名) と、用語集に無い固有名詞の候補を一覧する
   batch-export    エージェント (Claude など) が直接訳す行を、文脈付きの作業ファイル (JSON) に書き出す
   batch-import    エージェントが訳した作業ファイルを翻訳結果に取り込み、自動チェックにかける
   review      人が確認・修正した訳 (fixes.tsv) を取り込む

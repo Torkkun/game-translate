@@ -119,6 +119,11 @@ func TestMasculineMarkers(t *testing.T) {
 		"何しやがる！",
 		"そこで待ってろ。行くぞ！",
 		"よし、これで決まりだな。",
+		// 点検で素通りしていた言い方
+		"言っただろ――夜明けまではダメだって。",
+		"やっぱりな。",
+		"動け！",
+		"君はどう思う？",
 	}
 	good := []string{
 		"あんな人、どうでもいいんです。……これで満足ですか？",
@@ -147,6 +152,9 @@ func TestMasculineMarkers(t *testing.T) {
 		"どうして車椅子に乗ることになったのか。",
 		"何しろ、私たちが夢見る革命は遠いのよ。",
 		"勉強になるなあ。",
+		"諸君、よく来てくれたわね。",
+		"ケン君は来ないの？",
+		"やっぱりね。",
 	}
 	chk := func(s string, p Speaker) []string { return checkSpeakerOpt(s, p, true) }
 	for _, s := range bad {
