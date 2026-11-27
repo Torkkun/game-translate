@@ -15,6 +15,8 @@ plugins/**
 magefiles/game_*.go
 # 個人用のメモ (対応状況の詳細・運用メモ・設計の経緯など)
 docs/private/**
+# データ用リポジトリのトップに出る README (Mod の一覧)
+.github/README.md
 
 # ビルドしたもの・大きな Mod 本体 (Release に置く)
 !**/bin/**

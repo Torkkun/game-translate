@@ -50,7 +50,8 @@ Steam などの PC ゲームを、LLM の機械翻訳 + 手修正で別の言語
 ## 新しいゲームに対応する流れ
 
 1. **調査 (読み取りのみ)**: [docs/RESEARCH.md](docs/RESEARCH.md) の手順で、エンジン、テキストの場所と形式、フォント、既存の翻訳 (公式・ファン) を調べ、
-   `games/<game>/調査レポート.md` (git 管理外、データ用リポジトリに保存) にまとめてユーザーに方式を確認する。エンジンごとの定番の方法は [docs/ENGINES.md](docs/ENGINES.md)
+   `games/<game>/調査レポート.md` (git 管理外、データ用リポジトリに保存) にまとめてユーザーに方式を確認する。エンジンごとの定番の方法は [docs/ENGINES.md](docs/ENGINES.md)。
+   方式が決まったら、決まったことを `games/<game>/README.md` に移し、調査レポートは消す (リポジトリには決まったことだけを残し、作業の記録は残さない)
 2. **抽出**: ゲーム固有の拡張として `internal/adapter/<game>/` に読み書きのコードと往復テスト (読む → 書く → 同じバイト列) を作り、
    `cmd/gtl/game_<game>.go` の init で `cli.Register` してコマンドにする。
    `gtl <game>-extract` で原文を TranslationUnit の JSONL (`work/<game>/source.jsonl`) にする。
@@ -68,7 +69,7 @@ Steam などの PC ゲームを、LLM の機械翻訳 + 手修正で別の言語
 5. **ビルド**: `gtl <game>-build` で `dist/<game>` に Mod 一式を作る (ゲームフォルダには触らない)。手順が多いゲームは `magefiles/game_*.go` に `Package` のタスクとしてまとめる
 6. **導入**: ユーザーに確認してから `gtl install -game <game>`。入れるのは最新の訳文から組み立て直した `dist/<game>` だけにし、入れた主なファイルの sha256 を確かめる。
    実機で表示 (字幕・選択肢・メニュー・長い台詞・フォントの違う画面) と主な操作を確かめてもらう
-7. **保存**: `gtl pack` で `games/<game>/<言語>.tsv` を更新し、`./scripts/mage.sh release <game> <版> "メモ"` で訳文と Mod をデータ用リポジトリに保存する。詳しい状態は `docs/private/` のメモに書き、README の「対応実績」には 1 行だけ足す
+7. **保存**: `gtl pack` で `games/<game>/<言語>.tsv` を更新し、`./scripts/mage.sh release <game> <版> "メモ"` で訳文と Mod をデータ用リポジトリに保存する。ゲームごとの方式・入れ方と外し方・作り方・訳文の元・決めたこと・既知の制限は `games/<game>/README.md` (データ用リポジトリ) に書き、データ用リポジトリのトップの Mod 一覧 (`.github/README.md`) を更新する。この README の「対応実績」には 1 行だけ足す
 
 ### 訳文を確かめるときの決まり
 

@@ -59,19 +59,21 @@ func TestFileList(t *testing.T) {
 
 func TestClassify(t *testing.T) {
 	for p, bad := range map[string]bool{
-		"games/x/game.yaml":       true,
-		"internal/adapter/x/x.go": true,
-		"cmd/gtl/game_x.go":       true,
-		"magefiles/game_x.go":     true,
-		"docs/private/ENV.md":     true,
-		"a/b.jsonl":               true,
-		"testdata/sample.jsonl":   false,
-		"x/out.wad.pc":            true,
-		"tools/a.dll":             true,
-		"cmd/gtl/main.go":         false,
-		"internal/translate/a.go": false,
-		"magefiles/magefile.go":   false,
-		"docs/ENGINES.md":         false,
+		"games/x/game.yaml":        true,
+		"internal/adapter/x/x.go":  true,
+		"cmd/gtl/game_x.go":        true,
+		"magefiles/game_x.go":      true,
+		"docs/private/ENV.md":      true,
+		"a/b.jsonl":                true,
+		"testdata/sample.jsonl":    false,
+		"x/out.wad.pc":             true,
+		"tools/a.dll":              true,
+		"cmd/gtl/main.go":          false,
+		"internal/translate/a.go":  false,
+		"magefiles/magefile.go":    false,
+		"docs/ENGINES.md":          false,
+		".github/README.md":        true,
+		".github/workflows/ci.yml": false,
 	} {
 		if got := Classify(p) != ""; got != bad {
 			t.Errorf("%s: %v, want %v (%s)", p, got, bad, Classify(p))

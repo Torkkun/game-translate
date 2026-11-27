@@ -13,8 +13,8 @@ import (
 
 // 公開リポジトリに入れてはいけないものの決まり (CI の Guard と mage check が使う)。
 var (
-	// ゲームごとの設定・訳文・ゲーム由来のデータ・個人用メモ
-	dataGlobs = []string{"games/**", "docs/private/**", "**/*.tsv"}
+	// ゲームごとの設定・訳文・ゲーム由来のデータ・個人用メモ・データ用リポジトリのトップの README
+	dataGlobs = []string{"games/**", "docs/private/**", ".github/README.md", "**/*.tsv"}
 	// ゲーム固有の拡張
 	extGlobs = []string{"cmd/gtl/game_*.go", "internal/adapter/**", "internal/unityfs/**", "internal/zf/**", "plugins/**",
 		"magefiles/game_*.go"}

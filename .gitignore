@@ -21,6 +21,8 @@ plugins/
 magefiles/game_*.go
 #   個人用のメモ
 docs/private/
+#   データ用リポジトリのトップに出る README (Mod の一覧)
+.github/README.md
 
 # データ用リポジトリの管理情報
 .data.git/
